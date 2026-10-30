@@ -867,7 +867,8 @@ const THEMES = [
 // ============= 상태 =============
 const state = {
   cardsPerMission: 3,
-  enabledMissions: MISSIONS.map(m => m.id),
+  // 친구야 건배, 하나둘치즈는 기본 꺼 둠 (설정에서 켤 수 있음)
+  enabledMissions: MISSIONS.map(m => m.id).filter(id => id !== 'cheers' && id !== 'cheese'),
   deck: [],
   current: null,
   theme: null,
