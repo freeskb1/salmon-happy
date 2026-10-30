@@ -1721,7 +1721,7 @@ document.addEventListener('touchmove', (e) => {
 
 // 새로고침 방지 키 (브라우저 단축키 일부)
 window.addEventListener('beforeunload', (e) => {
-  // 게임 중이면 경고 (광배월드가 다음 게임으로 옮길 때는 제외)
+  // 게임 중이면 경고 (말랑월드가 다음 게임으로 옮길 때는 제외)
   if ($('#play').classList.contains('active') && !window.KWANGBBAN_LEAVING) {
     e.preventDefault();
     e.returnValue = '';
