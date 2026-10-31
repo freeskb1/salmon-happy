@@ -1407,6 +1407,7 @@ function drawNextCard() {
 
   // 카운터
   $('#deckCount').textContent = state.deck.length;
+  saveGame();
 
   // 미션 완료 버튼 잠금 (2초)
   startCountdown();
@@ -1456,6 +1457,7 @@ function passMission() {
 function showVictory() {
   $('#victoryOverlay').classList.add('active');
   spawnConfetti();
+  saveGame();
 }
 
 function hideVictory() {
@@ -1532,6 +1534,7 @@ function saveSettings() {
     return;
   }
   state.enabledMissions = enabled;
+  saveGame();
 
   closeSettings();
 }
@@ -1633,6 +1636,7 @@ function backToHome() {
   }
   // 홈 화면 테마는 초기 랜덤 유지
   showScreen('home');
+  saveGame();
 }
 
 // ============= 이벤트 바인딩 =============
@@ -1730,10 +1734,35 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 // ============= 초기화 =============
+// 새로고침(당겨서 새로고침 포함)해도 하던 판이 이어지게 탭 단위로 저장
+const SAVE_KEY = 'salmon-game';
+function saveGame() {
+  const playing = $('#play').classList.contains('active') && state.deck.length > 0;
+  try {
+    sessionStorage.setItem(SAVE_KEY, JSON.stringify({
+      theme: state.theme, cardsPerMission: state.cardsPerMission, enabledMissions: state.enabledMissions,
+      deck: playing ? state.deck : []
+    }));
+  } catch (e) {}
+}
+function loadGame() {
+  let s = null;
+  try { s = JSON.parse(sessionStorage.getItem(SAVE_KEY) || 'null'); } catch (e) {}
+  if (!s) return false;
+  if (s.theme) state.theme = s.theme;
+  if (s.cardsPerMission) state.cardsPerMission = s.cardsPerMission;
+  if (Array.isArray(s.enabledMissions) && s.enabledMissions.length) state.enabledMissions = s.enabledMissions;
+  const deck = (s.deck || []).filter(id => MISSIONS.some(m => m.id === id));
+  if (deck.length) state.deck = deck;
+  return deck.length > 0;
+}
+
 function init() {
-  state.theme = pickRandomTheme();
+  const resume = loadGame();
+  if (!state.theme) state.theme = pickRandomTheme();
   applyTheme(state.theme);
   setupGuideSwipe();
+  if (resume) { showScreen('play'); drawNextCard(); }
 }
 
 init();
